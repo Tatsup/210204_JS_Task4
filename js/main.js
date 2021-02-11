@@ -4,21 +4,25 @@
   
   // 開始ボタンクリック時の処理
   document.getElementById('startButton').addEventListener('click', e => {
+    getApiData();
+  });
+
+  async function getApiData() {
     // 取得中の画面表示
     document.getElementById('title').textContent = '取得中';
     document.getElementById('comment').textContent = '少々お待ちください';
     document.getElementById('startButton').remove();
     // APIからJSONデータを取得
-    fetch("https://opentdb.com/api.php?amount=10")
-    .then(response => {
-      return response.json();
-    })
-    .then(jsonObj => {  
+    try {
+      const response = await fetch("https://opentdb.com/api.php?amount=10");
+      const jsonObj = await response.json();
       const currentCorrectCount = 0; // 正解数カウント
       let currentQuizNum = 1; // 初期値
-      quiz(jsonObj, currentQuizNum, currentCorrectCount);
-    });
-  });
+      showQuiz(jsonObj, currentQuizNum, currentCorrectCount);
+    } catch (e) {
+      console.error(e);
+    };
+  };
 
   // 解答ボタン生成の関数を定義
   function createQuizButton(textAnswer, correctFlag, quizNum, correctCount, obj) {
@@ -32,9 +36,9 @@
         correctCount ++ ; // 正解数をカウントUP
       }
       if (quizNum <= 10) {
-        quiz(obj, quizNum, correctCount); // 次の問題を表示
+        showQuiz(obj, quizNum, correctCount); // 次の問題を表示
       } else {
-        quizResult(correctCount); // クイズの結果を表示
+        showResult(correctCount); // クイズの結果を表示
       };
     });
     const pButton = document.createElement('p'); // 解答ボタンを縦に並べるためp要素ノードを作成
@@ -43,7 +47,7 @@
   };
 
   // 問題の表示
-  function quiz(obj, quizNum, correctCount) {
+  function showQuiz(obj, quizNum, correctCount) {
     allDiv.innerHTML = ""; // allDivのHTMLを消去
     const fetchData = obj.results[quizNum - 1]; 
     // タイトル
@@ -84,7 +88,7 @@
   };
 
   // 結果の表示
-  function quizResult(correctCount) {
+  function showResult(correctCount) {
     allDiv.innerHTML = ""; // allDivのHTMLを消去
     // タイトル
     const tempTitle = document.createElement('h1');
@@ -119,20 +123,7 @@
       allDiv.appendChild(button);
       // 開始ボタンクリック時の処理
       document.getElementById('startButton').addEventListener('click', e => {
-        // 取得中の画面表示
-        document.getElementById('title').textContent = '取得中';
-        document.getElementById('comment').textContent = '少々お待ちください';
-        document.getElementById('startButton').remove();
-        // APIからJSONデータを取得
-        fetch("https://opentdb.com/api.php?amount=10")
-        .then(response => {
-          return response.json();
-        })
-        .then(jsonObj => {   
-          const currentCorrectCount = 0; // 正解数カウント
-          let currentQuizNum = 1; // 初期値
-          quiz(jsonObj, currentQuizNum, currentCorrectCount);
-        });
+        getApiData();
       });
       
     });
